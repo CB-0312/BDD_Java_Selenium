@@ -1,0 +1,32 @@
+name: Java Selenium CI
+
+on:
+  push:
+    branches: [ main, settingUpNewRepo ]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    services:
+      selenium-hub:
+        image: selenium/hub:4.21.0
+        ports:
+          - 4444:4444
+      chrome:
+        image: selenium/node-chrome:4.21.0
+        depends_on:
+          - selenium-hub
+        options: --shm-size=2g
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Build & Test
+        run: mvn clean test -Denv=qa
